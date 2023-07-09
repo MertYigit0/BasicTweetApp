@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Homepage</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Homepage</h1>
+
+    <!-- Tweet List -->
+    <div class="tweet-container">
+      <?php
+      // Database connection
+      include 'db_connection.php';
+
+      $servername = "localhost";
+      $username = "root";
+      $password = "123456";
+      $dbname = "project348";
+
+      $conn = new mysqli($servername, $username, $password, $dbname);
+      if ($conn->connect_error) {
+          die("Veritabanına bağlanılamadı: " . $conn->connect_error);
+      }
+
+      // Place the necessary code here for session control and retrieving the user ID
+      // Assign the user ID to $userId variable
+
+      $userId = 1; // Placeholder, replace with actual user ID retrieval code
+
+      // Query to retrieve the tweets of the followed users
+      $followingQuery = "SELECT followed_id FROM FOLLOWs WHERE follower_id = $userId";
+
+      // Call the stored procedure to retrieve tweets of followed users
+      $tweetsQuery = "CALL GetFollowedTweets($userId)";
+
+      // Execute the query to retrieve the tweets of the followed users
+      $tweetsResult = $conn->query($tweetsQuery);
+
+      // Display the tweets of the followed users
+      if ($tweetsResult && $tweetsResult->num_rows > 0) {
+          while ($row = $tweetsResult->fetch_assoc()) {
+              $tweetId = $row['tweet_id'];
+              $username = $row['username'];
+              $content = $row['content'];
+              $creationDate = $row['creation_date'];
+              ?>
+
+              <div class="tweet">
+                <h3><?php echo $username; ?></h3>
+                <p><?php echo $content; ?></p>
+                <span class="timestamp"><?php echo $creationDate; ?></span>
+              </div>
+
+              <?php
+          }
+      } else {
+          echo "<p>No tweets available from the followed users.</p>";
+      }
+
+      // Close the database connection
+      $conn->close();
+      ?>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search user..." required />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <!-- Follow User -->
+    <div class="user-info">
+      <?php
+      // Retrieve user information for the searched user (replace with actual code)
+      $searchedUser = [
+        'username' => 'JohnDoe',
+        'followers' => 100,
+        'following' => 50,
+      ];
+
+      if ($searchedUser) {
+          ?>
+          <h2><?php echo $searchedUser['username']; ?></h2>
+          <p>Followers: <?php echo $searchedUser['followers']; ?></p>
+          <p>Following: <?php echo $searchedUser['following']; ?></p>
+          <button class="follow-button">Follow</button>
+          <?php
+      } else {
+          echo "<p>User not found.</p>";
+      }
+      ?>
+    </div>
+
+    <!-- Profile Button -->
+    <div class="profile-button">
+      <a href="profile.php">Profile</a
